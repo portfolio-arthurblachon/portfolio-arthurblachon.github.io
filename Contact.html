@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact & CV</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ============================================
+       VARIABLES — changer ici = change tout le site
+    ============================================ */
+    :root {
+      --bg:        #0d0d0f;
+      --surface:   #17171c;
+      --border:    #2a2a35;
+      --accent:    #00fff2;
+      --accent2:   #bf35ff;
+      --text:      #f0ede8;
+      --muted:     #7a7a8c;
+      --radius:    12px;
+      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* MODE LUMINEUX — toutes ces valeurs s'activent quand
+       on ajoute data-theme="light" sur la balise <html> */
+    [data-theme="light"] {
+      --bg:      #f5f4ef;
+      --surface: #ffffff;
+      --border:  #ddd9d0;
+      --accent:  #c81e00;
+      --accent2: #e04a00;
+      --text:    #1a1a20;
+      --muted:   #6b6b78;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      transition: background var(--tr), color var(--tr);
+      min-height: 100vh;
+    }
+
+    /* ============================================
+       NAVIGATION
+    ============================================ */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: color-mix(in srgb, var(--bg) 85%, transparent);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+    }
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800; font-size: 1.2rem;
+      color: var(--accent); text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 0.25rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none;
+      font-size: 0.9rem; padding: 0.4rem 0.85rem;
+      border-radius: 6px;
+      transition: color var(--tr), background var(--tr);
+    }
+    .nav-links a:hover { color: var(--text); background: var(--border); }
+
+    /* Bouton thème */
+    .theme-btn {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 30px; display: flex; align-items: center;
+      padding: 4px; gap: 2px; cursor: pointer;
+    }
+    .theme-btn span {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem;
+      transition: background var(--tr);
+    }
+    .theme-btn span.active { background: var(--accent); }
+
+    /* ============================================
+       HERO CONTACT
+    ============================================ */
+    .hero {
+      padding: 5rem 2rem 3rem;
+      text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 60px 60px;
+      opacity: 0.3;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: color-mix(in srgb, var(--accent) 15%, transparent);
+      border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+      color: var(--accent);
+      font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 0.3rem 1rem; border-radius: 30px;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 800; letter-spacing: -0.04em;
+      line-height: 1.05; margin-bottom: 1rem;
+    }
+    .hero h1 em { font-style: normal; color: var(--accent); }
+    .hero p { color: var(--muted); font-size: 1.05rem; max-width: 460px; margin: 0 auto; }
+
+    /* Avatar */
+    .avatar {
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      border: 3px solid var(--accent);
+      object-fit: cover;
+      margin: 0 auto 1.5rem;
+      display: block;
+      /* Si pas d'image réelle, on affiche des initiales */
+      background: var(--surface);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem; font-weight: 800; color: var(--accent);
+    }
+
+    /* ============================================
+       LAYOUT PRINCIPAL
+    ============================================ */
+    .main-grid {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3rem 2rem 5rem;
+      display: grid;
+      /* Sur grand écran : 2 colonnes. Sur mobile : 1 seule */
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+    @media (max-width: 800px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ============================================
+       CARTE GÉNÉRIQUE (réutilisable)
+    ============================================ */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      transition: border-color var(--tr);
+    }
+    .card:hover { border-color: color-mix(in srgb, var(--accent) 50%, transparent); }
+
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 1.25rem;
+    }
+
+/* =============================================
+       BARRE DE NAVIGATION
+    ============================================= */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: color-mix(in srgb, var(--bg) 85%, transparent);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      transition: background var(--transition);
+    }
+
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.3rem;
+      color: var(--accent);
+      text-decoration: none;
+      letter-spacing: -0.03em;
+    }
+
+    /* Liens du menu principal */
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      padding: 0.4rem 0.85rem;
+      border-radius: 6px;
+      transition: color var(--transition), background var(--transition);
+      position: relative;
+    }
+
+    /* Effet survol — soulignement animé */
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      left: 0.85rem; right: 0.85rem;
+      bottom: 2px; height: 1px;
+      background: var(--accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform var(--transition);
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a:hover::after { transform: scaleX(1); }
+
+    /* =============================================
+       MENU DÉROULANT
+       La magie : hover sur .dropdown affiche .dropdown-menu
+    ============================================= */
+    .dropdown { position: relative; }
+
+    .dropdown > a::before {
+      content: '▾';
+      margin-left: 4px;
+      display: inline-block;
+      transition: transform var(--transition);
+    }
+    .dropdown:hover > a::before { transform: rotate(180deg); }
+
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100%);
+      left: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      min-width: 200px;
+      list-style: none;
+      padding: 0.5rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+      /* CACHÉ par défaut : opacity 0 + translateY */
+      opacity: 0;
+      transform: translateY(-8px);
+      pointer-events: none;
+      transition: opacity var(--transition), transform var(--transition);
+    }
+
+    /* VISIBLE au survol du parent */
+    .dropdown:hover .dropdown-menu {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+
+    .dropdown-menu li a {
+      display: block;
+      padding: 0.55rem 0.9rem;
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      transition: background var(--transition), color var(--transition);
+    }
+    .dropdown-menu li a:hover { background: var(--border); color: var(--text); }
+    .dropdown-menu li a::after { display: none; } /* pas de soulignement ici */
+
+    /* Séparateur dans le menu déroulant */
+    .dropdown-menu .sep {
+      height: 1px; background: var(--border);
+      margin: 0.4rem 0;
+    }
+
+    /* Groupe avec titre dans le menu */
+    .dropdown-menu .group-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      padding: 0.3rem 0.9rem 0.1rem;
+    }
+
+
+    /* ============================================
+       SECTION CONTACT — infos + formulaire
+    ============================================ */
+    #contact { display: flex; flex-direction: column; gap: 1.5rem; }
+
+    /* Liens de contact (email, tel, etc.) */
+    .contact-links { display: flex; flex-direction: column; gap: 0.75rem; }
+
+    .contact-link {
+      display: flex; align-items: center; gap: 0.85rem;
+      padding: 0.9rem 1rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      text-decoration: none;
+      color: var(--text);
+      transition: border-color var(--tr), background var(--tr), transform var(--tr);
+    }
+    .contact-link:hover {
+      border-color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 5%, transparent);
+      transform: translateX(4px);
+    }
+    .contact-link .icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+      transition: background var(--tr);
+    }
+    .contact-link:hover .icon { background: var(--accent); }
+    .contact-link .info { flex: 1; }
+    .contact-link .info small { display: block; font-size: 0.72rem; color: var(--muted); }
+    .contact-link .info span { font-size: 0.9rem; }
+    .contact-link .arrow { color: var(--muted); font-size: 0.85rem; transition: color var(--tr); }
+    .contact-link:hover .arrow { color: var(--accent); }
+
+    /* Formulaire de contact */
+    .form-group { margin-bottom: 1rem; }
+    .form-group label {
+      display: block; font-size: 0.8rem;
+      color: var(--muted); margin-bottom: 0.4rem;
+    }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.7rem 1rem;
+      color: var(--text);
+      font-family: inherit; font-size: 0.9rem;
+      outline: none;
+      transition: border-color var(--tr), box-shadow var(--tr);
+      resize: vertical;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
+    }
+    .form-group textarea { min-height: 110px; }
+
+    .btn {
+      width: 100%; padding: 0.8rem;
+      background: var(--accent); color: #0d0d0f;
+      border: none; border-radius: 8px;
+      font-family: inherit; font-size: 0.95rem; font-weight: 600;
+      cursor: pointer;
+      transition: transform var(--tr), box-shadow var(--tr), opacity var(--tr);
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px color-mix(in srgb, var(--accent) 40%, transparent);
+    }
+    .btn:active { transform: translateY(0); opacity: 0.85; }
+
+    /* ============================================
+       SECTION CV
+    ============================================ */
+    #cv { display: flex; flex-direction: column; gap: 1.5rem; }
+
+    /* Boutons d'action (télécharger / ouvrir) */
+    .cv-actions { display: flex; gap: 0.75rem; }
+
+    .cv-btn {
+      flex: 1;
+      display: flex; align-items: center; justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.88rem; font-weight: 500;
+      cursor: pointer; text-decoration: none;
+      transition: transform var(--tr), box-shadow var(--tr), background var(--tr), border-color var(--tr);
+      border: 1px solid var(--border);
+      font-family: inherit;
+    }
+
+    /* Bouton primaire — télécharger */
+    .cv-btn-primary {
+      background: var(--accent); color: #0d0d0f;
+      border-color: var(--accent);
+    }
+    .cv-btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px color-mix(in srgb, var(--accent) 35%, transparent);
+    }
+
+    /* Bouton secondaire — ouvrir dans un onglet */
+    .cv-btn-outline {
+      background: transparent; color: var(--text);
+    }
+    .cv-btn-outline:hover {
+      border-color: var(--accent); color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    /* ============================================
+       PRÉVISUALISATION DU PDF
+       L'élément <iframe> affiche le PDF directement
+       dans la page, comme un vrai lecteur.
+    ============================================ */
+    .cv-preview-wrap {
+      position: relative;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--bg);
+      transition: border-color var(--tr);
+    }
+    .cv-preview-wrap:hover { border-color: color-mix(in srgb, var(--accent) 50%, transparent); }
+
+    /* Barre de titre au dessus de l'iframe */
+    .cv-preview-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.6rem 1rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .cv-preview-bar span {
+      font-size: 0.78rem; color: var(--muted);
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+    .cv-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent); display: inline-block;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+
+    /*
+      L'ÉLÉMENT CLÉ : <iframe>
+      - src="ton-cv.pdf"  → chemin vers ton fichier PDF
+      - Le navigateur l'affiche directement dans la page
+      - height contrôle la hauteur de la fenêtre de prévisualisation
+    */
+    .cv-preview-wrap iframe {
+      width: 100%;
+      height: 520px;     /* ← ajuste cette valeur selon tes besoins */
+      border: none;
+      display: block;
+    }
+
+    /* Message affiché si le navigateur ne supporte pas l'iframe PDF */
+    .cv-fallback {
+      display: none;
+      padding: 2rem; text-align: center; color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    /* ============================================
+       TOAST (notification)
+    ============================================ */
+    #toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 0.85rem 1.1rem;
+      font-size: 0.88rem;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+      transform: translateX(130%);
+      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+      z-index: 200; max-width: 280px;
+    }
+    #toast.show { transform: translateX(0); }
+
+    /* ============================================
+       FOOTER
+    ============================================ */
+    footer {
+      border-top: 1px solid var(--border);
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.83rem; color: var(--muted);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ==========================================
+       NAVIGATION
+  =========================================== -->
+  <nav id="navbar">
+    <a href="#" class="nav-logo">⬡ Portfolio Arthur Blachon</a>
+
+    <!-- Liens de navigation (masqués sur mobile) -->
+    <ul class="nav-links">
+      <li><a href="index.html">index</a></li>
+
+      <li class="dropdown">
+        <a href="Projets.html">Projets</a>
+        <ul class="dropdown-menu">
+          <li class="group-title">Formation</li>
+          <li><a href="Projets.html#SLR">✈️ Son et Lumières pour Rafale</a></li>
+          <li><a href="Projets.html#TDB">🌡️ Thermomètre De Bain</a></li>
+          <li><a href="Projets.html#KAH">🏎️ Kart A Hélices</a></li>
+          <li><a href="Projets.html#RMS">🤖 Robot Mini-Sumo</a></li>
+          <li><a href="Projets.html#CDR">📡 Concours De Radiogoniométrie</a></li>
+          <li class="sep"></li>
+          <li class="group-title">Professionnels</li>
+          <li><a href="Projets.html#ALMA">📡 ALMA</a></li>
+          <li class="sep"></li>
+          <li class="group-title">Personnels</li>
+          <li><a href="Projets.html#Wheels">🛑 Wheels</a></li>
+        </ul>
+      </li>
+
+      <li class="dropdown">
+        <a href="Competences.html">Compétences</a>
+        <ul class="dropdown-menu">
+          <li class="group-title">Conception</li>
+          <li><a href="Competences.html#conception_elec">⚡ Électronique</a></li>
+          <li><a href="Competences.html#conception_meca">⚙️ Mécanique</a></li>
+          <li class="sep"></li>
+          <li class="group-title">Vérification</li>
+          <li><a href="Competences.html#verification_elec">⚡ Électronique</a></li>
+          <li class="sep"></li>
+          <li class="group-title">Maintenance</li>
+          <li><a href="Competences.html#maintenance_prev">💊 Préventive</a></li>
+          <li><a href="Competences.html#maintenance_rep">💉 Réparatrice</a></li>
+          <li class="sep"></li>
+          <li class="group-title">Implantation</li>
+          <li><a href="Competences.html#implantation_radio">📻 Radio</a></li>
+        </ul>
+      </li>
+    
+      <li><a href="Contact.html">Contact</a></li>
+    </ul>
+
+    <button class="theme-btn" id="themeToggle">
+      <span id="darkBtn" class="active">🌙</span>
+      <span id="lightBtn">☀️</span>
+    </button>
+  </nav>
+
+
+
+  <!-- ===== CONTENU PRINCIPAL ===== -->
+  <div class="main-grid">
+
+    <!-- ==============================
+         COLONNE GAUCHE — CONTACT
+    ============================== -->
+    <div id="contact">
+
+      <!-- Liens de contact rapide -->
+      <div class="card">
+        <p class="card-title">Me contacter</p>
+
+        <div class="contact-links">
+
+          <!-- Email -->
+          <a href="mailto:arthur.blachon@gmail.com" class="contact-link">
+            <div class="icon">📧</div>
+            <div class="info">
+              <small>Email</small>
+              <span>arthur.blachon@gmail.com</span>
+            </div>
+            <span class="arrow">→</span>
+          </a>
+
+          <!-- Téléphone -->
+          <a href="tel:+33663373319" class="contact-link">
+            <div class="icon">📞</div>
+            <div class="info">
+              <small>Téléphone</small>
+              <span>+33 6 63 37 33 19</span>
+            </div>
+            <span class="arrow">→</span>
+          </a>
+
+        </div>
+      </div>
+    </div>
+      
+    <!-- ==============================
+         COLONNE DROITE — CV
+    ============================== -->
+    <div id="cv">
+
+      <div class="card">
+        <p class="card-title">Mon CV</p>
+
+        <!-- Boutons d'action -->
+        <div class="cv-actions" style="margin-bottom: 1.25rem;">
+
+          <!--
+            TÉLÉCHARGEMENT :
+            - href="ton-cv.pdf"   → chemin vers ton fichier PDF
+            - download="CV_Jean_Dupont.pdf"  → nom du fichier téléchargé
+              (sans "download", le lien ouvre juste le PDF)
+          -->
+          <a href="PDF/CV_BLACHON_juin2026.pdf" download="Arthur_Blachon.pdf" class="cv-btn cv-btn-primary">
+            ⬇ Télécharger
+          </a>
+
+          <!--
+            OUVRIR DANS UN NOUVEL ONGLET :
+            - target="_blank" → ouvre dans un nouvel onglet
+            - Le navigateur affiche le PDF avec son lecteur natif
+          -->
+          <a href="PDF/CV_BLACHON_juin2026.pdf" target="_blank" class="cv-btn cv-btn-outline">
+            ↗ Ouvrir
+          </a>
+
+        </div>
+
+        <!-- Prévisualisation PDF -->
+        <div class="cv-preview-wrap">
+
+          <!-- Barre de titre décorative -->
+          <div class="cv-preview-bar">
+            <span><span class="cv-dot"></span> Prévisualisation</span>
+            <span>CV_Arthur_Blachon.pdf</span>
+          </div>
+
+          <!--
+            L'IFRAME — c'est lui qui affiche le PDF dans la page.
+
+            COMMENT ÇA MARCHE :
+            <iframe src="ton-cv.pdf"> charge le PDF directement.
+            Le navigateur utilise son lecteur PDF intégré.
+            L'utilisateur peut zoomer, défiler, sans quitter la page.
+
+            POUR L'UTILISER :
+            1. Place ton fichier PDF dans le même dossier que cette page
+            2. Remplace "ton-cv.pdf" par le vrai nom de ton fichier
+               Exemple : src="CV_Jean_Dupont_2025.pdf"
+
+            SI LE PDF N'EST PAS ENCORE DISPONIBLE :
+            Tu peux mettre un lien Google Drive public :
+            src="https://drive.google.com/file/d/TON_ID/preview"
+          -->
+          <iframe
+            src="PDF/CV_BLACHON_juin2026.pdf"
+            title="CV Arthur Blachon"
+            id="cvFrame"
+          >
+            <p class="cv-fallback">
+              Votre navigateur ne supporte pas la prévisualisation PDF.
+              <a href="PDF/CV_BLACHON_juin2026.pdf" download>Téléchargez le CV ici.</a>
+            </p>
+          </iframe>
+
+        </div>
+
+        <!-- Note informative -->
+        <p style="font-size:0.78rem; color:var(--muted); margin-top:0.75rem; text-align:center;">
+          Dernière mise à jour : Mai 2026 · PDF · 1 page
+        </p>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <footer>
+    <p>⬡ Portfolio · Arthur Blachon · 2026</p>
+  </footer>
+
+  <!-- ===== TOAST ===== -->
+  <div id="toast"></div>
+
+  <!-- ===== JAVASCRIPT ===== -->
+  <script>
+
+    /* =============================================
+      1. MODE SOMBRE / LUMINEUX
+    ============================================= */
+    const html = document.documentElement;
+    const themeToggle = document.getElementById('themeToggle');
+    const darkBtn  = document.getElementById('darkBtn');
+    const lightBtn = document.getElementById('lightBtn');
+
+    // Lit le thème sauvegardé, "dark" par défaut si première visite
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    html.setAttribute('data-theme', savedTheme);
+    darkBtn.classList.toggle('active', savedTheme === 'dark');
+    lightBtn.classList.toggle('active', savedTheme === 'light');
+
+    themeToggle.addEventListener('click', () => {
+      const isDark = html.getAttribute('data-theme') === 'dark';
+      const newTheme = isDark ? 'light' : 'dark';
+
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme); // sauvegarde le choix
+      darkBtn.classList.toggle('active', newTheme === 'dark');
+      lightBtn.classList.toggle('active', newTheme === 'light');
+      showToast(isDark ? '☀️ Mode lumineux activé' : '🌙 Mode sombre activé');
+    });
+
+    /* ============================================
+       TOAST (notification temporaire)
+    ============================================ */
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    /* ============================================
+       FORMULAIRE — retour visuel à l'envoi
+       (fonctionne avec Formspree ou tout backend)
+    ============================================ */
+    const form = document.getElementById('contactForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', (e) => {
+      // Si tu utilises Formspree, retire cette ligne :
+      e.preventDefault();
+
+      // Retour visuel pendant l'envoi
+      submitBtn.textContent = 'Envoi en cours…';
+      submitBtn.disabled = true;
+
+      // Simule un envoi (retire ce setTimeout avec un vrai backend)
+      setTimeout(() => {
+        submitBtn.textContent = '✅ Message envoyé !';
+        form.reset();
+        showToast('✅ Votre message a bien été envoyé !');
+        setTimeout(() => {
+          submitBtn.textContent = 'Envoyer le message ✉️';
+          submitBtn.disabled = false;
+        }, 3000);
+      }, 1200);
+    });
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio – Arthur Blachon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet" />
+
+  <style>
+    /* =============================================
+       VARIABLES CSS — couleurs, polices, transitions
+       Changer une variable ici change tout le site !
+    ============================================= */
+    :root {
+      --bg:        #0d0d0f;
+      --surface:   #17171c;
+      --border:    #2a2a35;
+      --accent:    #00fff2;
+      --accent2:   #bf35ff;
+      --text:      #f0ede8;
+      --muted:     #7a7a8c;
+      --radius:    12px;
+      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* MODE LUMINEUX — toutes ces valeurs s'activent quand
+       on ajoute data-theme="light" sur la balise <html> */
+    [data-theme="light"] {
+      --bg:      #f5f4ef;
+      --surface: #ffffff;
+      --border:  #ddd9d0;
+      --accent:  #c81e00;
+      --accent2: #e04a00;
+      --text:    #1a1a20;
+      --muted:   #6b6b78;
+    }
+
+    /* =============================================
+       RESET ET BASE
+    ============================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      transition: background var(--transition), color var(--transition);
+      cursor: none; /* on utilise un curseur personnalisé */
+    }
+
+    /* =============================================
+       CURSEUR PERSONNALISÉ
+       Un petit point qui suit la souris
+    ============================================= */
+    #cursor {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: var(--accent);
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.15s ease, width 0.2s, height 0.2s, background 0.2s;
+    }
+    #cursor.big {
+      width: 36px; height: 36px;
+      background: transparent;
+      border: 2px solid var(--accent);
+    }
+
+    /* =============================================
+       BARRE DE NAVIGATION
+    ============================================= */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: color-mix(in srgb, var(--bg) 85%, transparent);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      transition: background var(--transition);
+    }
+
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.3rem;
+      color: var(--accent);
+      text-decoration: none;
+      letter-spacing: -0.03em;
+    }
+
+    /* Liens du menu principal */
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      padding: 0.4rem 0.85rem;
+      border-radius: 6px;
+      transition: color var(--transition), background var(--transition);
+      position: relative;
+    }
+
+    /* Effet survol — soulignement animé */
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      left: 0.85rem; right: 0.85rem;
+      bottom: 2px; height: 1px;
+      background: var(--accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform var(--transition);
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a:hover::after { transform: scaleX(1); }
+
+    /* =============================================
+       MENU DÉROULANT
+       La magie : hover sur .dropdown affiche .dropdown-menu
+    ============================================= */
+    .dropdown { position: relative; }
+
+    .dropdown > a::before {
+      content: '▾';
+      margin-left: 4px;
+      display: inline-block;
+      transition: transform var(--transition);
+    }
+    .dropdown:hover > a::before { transform: rotate(180deg); }
+
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100%);
+      left: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      min-width: 200px;
+      list-style: none;
+      padding: 0.5rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+      /* CACHÉ par défaut : opacity 0 + translateY */
+      opacity: 0;
+      transform: translateY(-8px);
+      pointer-events: none;
+      transition: opacity var(--transition), transform var(--transition);
+    }
+
+    /* VISIBLE au survol du parent */
+    .dropdown:hover .dropdown-menu {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+
+    .dropdown-menu li a {
+      display: block;
+      padding: 0.55rem 0.9rem;
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      transition: background var(--transition), color var(--transition);
+    }
+    .dropdown-menu li a:hover { background: var(--border); color: var(--text); }
+    .dropdown-menu li a::after { display: none; } /* pas de soulignement ici */
+
+    /* Séparateur dans le menu déroulant */
+    .dropdown-menu .sep {
+      height: 1px; background: var(--border);
+      margin: 0.4rem 0;
+    }
+
+    /* Groupe avec titre dans le menu */
+    .dropdown-menu .group-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      padding: 0.3rem 0.9rem 0.1rem;
+    }
+
+    /* =============================================
+       BOUTON MODE SOMBRE / LUMINEUX
+    ============================================= */
+    .theme-toggle {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      display: flex; align-items: center;
+      padding: 4px;
+      gap: 2px;
+      cursor: pointer;
+      transition: border-color var(--transition);
+    }
+    .theme-toggle:hover { border-color: var(--accent); }
+
+    .theme-toggle span {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem;
+      transition: background var(--transition);
+    }
+    .theme-toggle span.active { background: var(--accent); }
+
+    /* =============================================
+       HERO — grande section d'index
+    ============================================= */
+    .hero {
+      min-height: 90vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 4rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: color-mix(in srgb, var(--accent) 15%, transparent);
+      border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.3rem 1rem;
+      border-radius: 30px;
+      margin-bottom: 1.5rem;
+      animation: fadeInUp 0.6s both;
+    }
+
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.8rem, 7vw, 6rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      margin-bottom: 1.5rem;
+      animation: fadeInUp 0.6s 0.1s both;
+    }
+
+    /* Texte surligné en accent */
+    .hero h1 em {
+      font-style: normal;
+      color: var(--accent);
+    }
+
+    .hero p {
+      max-width: 540px;
+      color: var(--muted);
+      font-size: 1.1rem;
+      margin-bottom: 2.5rem;
+      animation: fadeInUp 0.6s 0.2s both;
+    }
+
+    .hero-buttons {
+      display: flex; gap: 1rem; flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeInUp 0.6s 0.3s both;
+    }
+
+    /* =============================================
+       BOUTONS
+    ============================================= */
+    .btn {
+      padding: 0.75rem 1.8rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+      font-family: inherit;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #0d0d0f;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px color-mix(in srgb, var(--accent) 40%, transparent);
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    /* =============================================
+       SECTIONS GÉNÉRIQUES
+    ============================================= */
+    section { padding: 6rem 2rem; }
+    .container { max-width: 1100px; margin: 0 auto; }
+
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+
+    .section-subtitle {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.5rem, 3vw, 2.5rem);
+      font-weight: 00;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+
+    .section-sub {
+      color: var(--muted);
+      max-width: 500px;
+      margin-bottom: 3rem;
+    }
+
+    /* =============================================
+       GALERIE D'IMAGES CLIQUABLES
+       Chaque image mène vers une autre "page"
+    ============================================= */
+    #galerie { background: var(--surface); }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 5rem;
+    }
+
+    /* Carte image — lien vers une autre page */
+    .img-card {
+      display: block; /* <a> se comporte comme un bloc */
+      text-decoration: none;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      position: relative;
+      background: var(--bg);
+      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+      /* Animation d'entrée au défilement */
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    .img-card.visible {
+      animation: fadeInUp 0.5s forwards;
+    }
+
+    .img-card:hover {
+      transform: translateY(-6px) scale(1.01);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+      border-color: var(--accent);
+    }
+
+    /* Image dans la carte */
+    .img-card img {
+      width: 100%;
+      aspect-ratio: 20/10;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease, filter 0.3s;
+      filter: saturate(0.7);
+    }
+    .img-card:hover img {
+      transform: scale(1.2);
+      filter: saturate(1.1);
+    }
+
+    /* Overlay qui apparaît au survol */
+    .img-card .overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 50%);
+      display: flex; flex-direction: column;
+      justify-content: flex-end;
+      padding: 1.2rem;
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+    .img-card:hover .overlay { opacity: 0; }
+
+    .overlay .tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.3rem;
+    }
+    .overlay h3 {
+      font-family: 'Syne', sans-serif;
+      color: #fff;
+      font-size: 1rem;
+    }
+    .overlay .arrow {
+      position: absolute; top: 1rem; right: 1rem;
+      width: 32px; height: 32px;
+      background: var(--accent);
+      color: #0d0d0f;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem;
+      transform: scale(0) rotate(-45deg);
+      transition: transform var(--transition);
+    }
+    .img-card:hover .arrow { transform: scale(1) rotate(0deg); }
+
+    /* Info texte sous l'image */
+    .img-card .card-body {
+      padding: 1rem 1.2rem;
+      border-top: 1px solid var(--border);
+    }
+    .card-body h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+    .card-body p { font-size: 0.82rem; color: var(--muted); }
+
+    /* =============================================
+       SECTION TEXTE AVEC EFFETS AU SURVOL
+    ============================================= */
+    
+    .big-text-block p {
+      font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+      line-height: 1.8;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    /* Mot surlignable */
+    .highlight-word {
+      cursor: default;
+      position: relative;
+      display: inline-block;
+      color: var(--text);
+      font-weight: 600;
+      transition: color var(--transition);
+    }
+    .highlight-word::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 3px;
+      background: var(--accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform var(--transition);
+    }
+    .highlight-word:hover { color: var(--accent); }
+    .highlight-word:hover::after { transform: scaleX(1); }
+
+    /* Tooltip au survol d'un mot */
+    .tooltip-word {
+      position: relative;
+      cursor: help;
+      color: var(--text);
+      border-bottom: 1px dashed var(--text);
+    }
+    .tooltip-word .tip {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%; transform: translateX(-50%) translateY(6px);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.8rem;
+      white-space: normal;
+      color: var(--text);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition), transform var(--transition);
+      z-index: 50;
+      text-align: center;
+      width: min(220px, 80vw);
+    }
+    .tooltip-word:hover .tip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .typewriter {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 4vw, 15rem);
+      font-weight: 700;
+      color: var(--accent);
+      min-height: 1.3em;
+    }
+    .typewriter-cursor {
+      display: inline-block;
+      width: 2px; height: 1em;
+      background: var(--accent);
+      vertical-align: text-bottom;
+      animation: blink 0.8s step-end infinite;
+    }
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    #accordeon { background: var(--surface); }
+
+    .accordion { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .accordion + .accordion { margin-top: 0.75rem; }
+
+    .accordion-header {
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 1.1rem 1.4rem;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      text-align: left;
+      transition: background var(--transition);
+    }
+    .accordion-header:hover { background: var(--border); }
+
+    .accordion-icon {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem;
+      flex-shrink: 0;
+      transition: transform var(--transition), background var(--transition);
+    }
+    .accordion.open .accordion-icon {
+      transform: rotate(45deg);
+      background: var(--accent);
+      color: #0d0d0f;
+    }
+
+    .accordion-body {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1), padding 0.3s;
+      padding: 0 1.4rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .accordion.open .accordion-body {
+      max-height: 400px;
+      padding: 0.75rem 1.4rem 1.2rem;
+    }
+
+    #scroll-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      background: var(--accent);
+      z-index: 200;
+      transition: width 0.1s linear;
+    }
+
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .app-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.4rem;
+      transition: border-color var(--transition), transform var(--transition);
+    }
+    .app-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+    }
+    .app-icon {
+      font-size: 1.6rem;
+      margin-bottom: 0.75rem;
+    }
+    .app-card h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+    .app-card p { font-size: 0.83rem; color: var(--muted); }
+
+    /* =============================================
+       NOTIFICATION TOAST
+       Petite alerte qui apparaît en bas à droite
+    ============================================= */
+    #toast-container {
+      position: fixed;
+      bottom: 1.5rem; right: 1.5rem;
+      z-index: 300;
+      display: flex; flex-direction: column; gap: 0.75rem;
+    }
+
+    .toast {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 0.85rem 1.1rem;
+      font-size: 0.88rem;
+      max-width: 280px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+      animation: slideInRight 0.3s both, fadeOut 0.3s 2.5s both;
+    }
+    @keyframes slideInRight {
+      from { transform: translateX(120%); opacity: 0; }
+      to   { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes fadeOut {
+      to { opacity: 0; transform: translateX(120%); }
+    }
+
+    /* =============================================
+       FOOTER
+    ============================================= */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 3rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    footer p { font-size: 0.85rem; color: var(--muted); }
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-links a {
+      font-size: 0.85rem; color: var(--muted);
+      text-decoration: none;
+      transition: color var(--transition);
+    }
+    .footer-links a:hover { color: var(--accent); }
+
+    /* =============================================
+       ANIMATIONS UTILITAIRES
+    ============================================= */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* =============================================
+       COMPTEUR ANIMÉ
+    ============================================= */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      margin-top: 3rem;
+    }
+    .stat-item {
+      text-align: center;
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+    .stat-number {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--accent);
+      display: block;
+    }
+    .stat-label { font-size: 0.82rem; color: var(--muted); }
+
+    /* =============================================
+       BARRE DE RECHERCHE ANIMÉE
+    ============================================= */
+    .search-wrap {
+      position: relative;
+      max-width: 420px;
+      margin-bottom: 2.5rem;
+    }
+    .search-wrap input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.7rem 1rem 0.7rem 2.8rem;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.9rem;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      outline: none;
+    }
+    .search-wrap input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
+    }
+    .search-wrap .s-icon {
+      position: absolute; left: 0.9rem; top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted); font-size: 0.9rem;
+    }
+
+    .pdf-grid {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3rem 2rem 5rem;
+      display: grid;
+      /* Sur grand écran : 2 colonnes. Sur mobile : 1 seule */
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+    @media (max-width: 800px) {
+      .pdf-grid { grid-template-columns: 1fr; }
+    }
+
+    .cv-preview-wrap {
+      position: relative;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--bg);
+      transition: border-color var(--tr);
+    }
+    .cv-preview-wrap:hover { border-color: color-mix(in srgb, var(--accent) 50%, transparent); }
+
+    /* Barre de titre au dessus de l'iframe */
+    .cv-preview-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.6rem 1rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .cv-preview-bar span {
+      font-size: 0.78rem; color: var(--muted);
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+    .cv-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent); display: inline-block;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+
+    /*
+      L'ÉLÉMENT CLÉ : <iframe>
+      - src="ton-cv.pdf"  → chemin vers ton fichier PDF
+      - Le navigateur l'affiche directement dans la page
+      - height contrôle la hauteur de la fenêtre de prévisualisation
+    */
+    .cv-preview-wrap iframe {
+      width: 100%;
+      height: 520px;     /* ← ajuste cette valeur selon tes besoins */
+      border: none;
+      display: block;
+    }
+
+    /* Message affiché si le navigateur ne supporte pas l'iframe PDF */
+    .cv-fallback {
+      display: none;
+      padding: 2rem; text-align: center; color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .file-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: -10rem;
+    }
+
+    /* Carte fichier */
+    .file-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      text-decoration: none;
+      color: var(--text);
+      transition: border-color var(--transition), transform var(--transition), background var(--transition);
+    }
+    .file-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-3px);
+      background: color-mix(in srgb, var(--accent) 5%, transparent);
+    }
+
+    /* Icône à gauche */
+    .file-icon {
+      font-size: 1.6rem;
+      flex-shrink: 0;
+    }
+
+    /* Nom + infos au centre */
+    .file-info {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      gap: 0.2rem;
+    }
+    .file-name {
+      font-size: 0.92rem;
+      font-weight: 500;
+    }
+    .file-meta {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    /* Flèche de téléchargement à droite */
+    .file-dl {
+      color: var(--muted);
+      font-size: 1rem;
+      transition: color var(--transition), transform var(--transition);
+    }
+    .file-card:hover .file-dl {
+      color: var(--accent);
+      transform: translateY(2px); /* descend légèrement au survol */
+    }
+
+    /* Mobile : 1 seule colonne */
+    @media (max-width: 600px) {
+      .file-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .skill-bar-wrap { margin-bottom: 1rem; }
+    .skill-bar-label {
+      display: flex; justify-content: space-between;
+      font-size: 0.85rem; color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+    .skill-bar-track {
+      height: 6px; background: var(--border);
+      border-radius: 3px; overflow: hidden;
+    }
+    .skill-bar-fill {
+      height: 100%; background: var(--accent);
+      border-radius: 3px;
+      width: 0%;
+      transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+    }
+
+
+    .media-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 3rem;
+    }
+
+    .media-image {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    }
+
+    .media-image img {
+    width: 100%;
+    border-radius: 12px;
+    object-fit: cover;
+    }
+
+    .media-text {
+      flex: 1;
+    }
+
+    @media (max-width: 600px) {
+      .media-wrapper {
+        flex-direction: column;
+      }
+    }
+
+
+  .media-image-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: -5rem;
+  }
+
+
+  .media-figure {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0;
+  }
+
+  .media-figure img {
+    width: 100%;
+    border-radius: 10px;
+    object-fit: contain;
+    border: 1px solid var(--border);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+  }
+
+  .media-figure figcaption {
+    font-size: 0.78rem;
+    color: var(--text);
+    text-align: center;
+    padding: 0 0.25rem;
+  }
+
+  @media (max-width: 600px) {
+    .media-image-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+
+  </style>
+</head>
+
+<body>
+
+  <!-- ============ BARRE DE PROGRESSION AU SCROLL ============ -->
+  <div id="scroll-bar"></div>
+
+  <!-- ============ CURSEUR PERSONNALISÉ ============ -->
+  <div id="cursor"></div>
+
+  <!-- ============ TOASTS ============ -->
+  <div id="toast-container"></div>
+
+  <!-- ==========================================
+       NAVIGATION
+  =========================================== -->
+  <nav id="navbar">
+    <a href="#" class="nav-logo">⬡ Portfolio Arthur Blachon</a>
+
+    <!-- Liens de navigation (masqués sur mobile) -->
+    <ul class="nav-links">
+      <li><a href="index.html">index</a></li>
+
+      <li class="dropdown">
+        <a href="Projets.html">Projets</a>
+        <ul class="dropdown-menu">
+          <li class="group-title">Formation</li>
+          <li><a href="Projets.html#SLR">✈️ Son et Lumières pour Rafale</a></li>
+          <li><a href="Projets.html#TDB">🌡️ Thermomètre De Bain</a></li>
+          <li><a href="Projets.html#KAH">🏎️ Kart A Hélices</a></li>
+          <li><a href="Projets.html#RMS">🤖 Robot Mini-Sumo</a></li>
+          <li><a href="Projets.html#CDR">📡 Concours De Radiogoniométrie</a></li>
+          <li class="sep"></li>
+          <li class="group-title">Professionnels</li>
+          <li><a href="Projets.html#ALMA">📡 ALMA</a></li>
+          <li class="sep"></li>
+          <li class="group-title">Personnels</li>
+          <li><a href="Projets.html#Wheels">🛑 Wheels</a></li>
+        </ul>
+      </li>
+
+      <li class="dropdown">
+        <a href="Competences.html">Compétences</a>
+        <ul class="dropdown-menu">
+          <li class="group-title">Conception</li>
+          <li><a href="Competences.html#conception_elec">⚡ Électronique</a></li>
+          <li><a href="Competences.html#conception_meca">⚙️ Mécanique</a></li>
+          <li class="sep"></li>
+          <li class="group-title">Vérification</li>
+          <li><a href="Competences.html#verification_elec">⚡ Électronique</a></li>
+          <li class="sep"></li>
+          <li class="group-title">Maintenance</li>
+          <li><a href="Competences.html#maintenance_prev">💊 Préventive</a></li>
+          <li><a href="Competences.html#maintenance_rep">💉 Réparatrice</a></li>
+          <li class="sep"></li>
+          <li class="group-title">Implantation</li>
+          <li><a href="Competences.html#implantation_radio">📻 Radio</a></li>
+        </ul>
+      </li>
+    
+      <li><a href="Contact.html">Contact</a></li>
+    </ul>
+
+    <!-- Bouton mode sombre/lumineux -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Changer de thème">
+      <span id="darkBtn" class="active">🌙</span>
+      <span id="lightBtn">☀️</span>
+    </button>
+
+  </nav>
+
+   <!-- ==========================================
+       COMPETENCES
+  =========================================== -->
+
+  <section id="competences" class="hero">
+    <h1>Compétences <br> acquises</h1>
+
+    <p>
+      Dans les domaines de l'électronique et de la robotique, j'ai eu l'occasion de développer
+      des compétences variées, allant de la conception d'une carte à son implantation dans un système,
+      en passant par sa vérification et sa maintenance. 
+    </p>
+
+    
+    <div class="hero-buttons">
+      <a href="#conception_elec" class="btn btn-primary">Conception</a>
+      <a href="#verification_elec" class="btn btn-primary">Vérification</a>
+      <a href="#maintenance_prev" class="btn btn-primary">Maintenance</a>
+      <a href="#implantation_radio" class="btn btn-primary">Implantation</a>
+    </div>
+  </section>
+
+  <div class="container">
+    
+  <section class="section-media" id="conception_elec">
+    <h2 class="section-title">Conception</span></h2>
+    <br>
+    <div class="media-wrapper">
+      <div class="media-image">
+      <img
+      src="Images/Conception_elec.png"
+      alt="Description de l'image"
+      />
+    </div>
+
+  
+    <div class="media-text">
+      <h1>Conception électronique</h1>
+      <p>
+        Afin d'avoir une carte électronique fonctionnelle, la concevoir est une étape primordiale.
+        Lors de mes différents projets, j'ai pu concevoir quelques cartes, avec
+        comme principales la carte du projet <a href="Projets.html#ALMA"><span class="highlight-word">ALMA</span></a> ou encore celle
+        du projet <a href="Projets.html#KAH"><span class="highlight-word">KAH</span></a>.
+        <br><br>
+        J'ai ainsi appris à dimensionner des composants, réaliser des schémas électriques, braser de l'étain, router sur des logiciels comme
+        <a href="index.html#Apps"><span class="highlight-word">eCADStar</span></a> ou
+        <a href="index.html#Apps"><span class="highlight-word">KiCAD</span></a>.
+      </p>
+    </div>
+  </section>
+
+  <section class="section-media">
+    <div class="container">
+      <div class="media-image-grid">
+        <figure class="media-figure">
+          <img src="Images/Schéma_KAH.PNG" alt="Schéma elec" />
+          <figcaption>Schéma électrique du projet <a href="Projets.html#KAH"><span class="highlight-word">KAH</span></a></figcaption>
+        </figure>
+
+        <figure class="media-figure">
+          <img src="Images/Routage_ALMA.png" alt="Routage" />
+          <figcaption>Routage du projet <a href="Projets.html#ALMA"><span class="highlight-word">ALMA</span></a> (couche du dessus)</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-media" id="conception_meca">
+
+    <div class="media-wrapper">
+      <div class="media-image">
+      <img
+      src="Images/Conception_meca.jpg"
+      alt="Description de l'image"
+      />
+    </div>
+
+    
+  
+    <div class="media-text">
+      <h1>Conception mécanique</h1>
+      <p>
+        Dans le cadre de mes différents projets, et au travers de mon diplôme universitaire, j'ai
+        pu découvrir et apprécier grandement la modélisation 3D. J'ai eu l'occasion de l'utiliser
+        dans divers projets, comme le chassis du
+        <a href="Projets.html#RMS"><span class="highlight-word">Robot Mini-Sumo</span></a>, 
+        l'intégralité du jeu de <a href="Projets.html#Wheels"><span class="highlight-word">roulettes</span></a>,
+        le voltant du <a href="Projets.html#KAH"><span class="highlight-word">Kart à Hélices</span></a> ou encore
+        le support de test de la carte réalisée dans le cadre du projet <a href="Projets.html#ALMA"><span class="highlight-word">ALMA</span></a>.
+        <br><br>
+        J'ai ainsi pu apprendre à utiliser des logiciels comme <a href="index.html#Apps"><span class="highlight-word">Fusion 360</span></a> et
+        <a href="index.html#Apps"><span class="highlight-word">Onshape</span></a>, que je maitrise.
+      </p>
+    </div>
+  </section>
+
+  <section class="section-media">
+    <div class="container">
+      <div class="media-image-grid">
+
+        <figure class="media-figure">
+          <img src="Images/Chassis_RMS.png" alt="Chassis RMS" />
+          <figcaption>Chassis du <a href="Projets.html#RMS"><span class="highlight-word">Robot Mini-Sumo</span></a></figcaption>
+        </figure>
+
+        <figure class="media-figure">
+          <img src="Images/Table_Wheels.png" alt="Assemblage roulettes" />
+          <figcaption>Assemblage de la table de <a href="Projets.html#Wheels"><span class="highlight-word">roulettes</span></a></figcaption>
+        </figure>
+
+        <figure class="media-figure">
+          <img src="Images/Volant_KAH.png" alt="Volant KAH" />
+          <figcaption>Volant du <a href="Projets.html#KAH"><span class="highlight-word">Kart à Hélices</span></a></figcaption>
+        </figure>
+
+        <figure class="media-figure">
+          <img src="Images/Cavity_DGCTR.png" alt="Cavité DGCTR" />
+          <figcaption>Support de test de la carte du projet <a href="Projets.html#ALMA"><span class="highlight-word">ALMA</span></a></figcaption>
+        </figure>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="section-media">
+    <div class="container">
+      <div class="file-grid">
+
+        <a href="Files/Chassis_RMS.step" download class="file-card">
+          <div class="file-icon">📄</div>
+          <div class="file-info">
+            <span class="file-name">Chassis RMS</span>
+            <span class="file-meta">STEP · 250 Ko</span>
+          </div>
+          <span class="file-dl">⬇</span>
+        </a>
+
+        <a href="Files/Assemblage_roulettes.step" download class="file-card">
+          <div class="file-icon">📄</div>
+          <div class="file-info">
+            <span class="file-name">Assemblage roulettes</span>
+            <span class="file-meta">STEP · 688 Ko</span>
+          </div>
+          <span class="file-dl">⬇</span>
+        </a>
+
+        <a href="Files/Volant_KAH.step" download class="file-card">
+          <div class="file-icon">📄</div>
+          <div class="file-info">
+            <span class="file-name">Volant KAH</span>
+            <span class="file-meta">STEP · 112 Ko</span>
+          </div>
+          <span class="file-dl">⬇</span>
+        </a>
+
+        <a href="Files/Cavité_DGCTR.step" download class="file-card">
+          <div class="file-icon">📄</div>
+          <div class="file-info">
+            <span class="file-name">Support de test</span>
+            <span class="file-meta">STEP · 123 Ko</span>
+          </div>
+          <span class="file-dl">⬇</span>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="section-media" id="verification_elec">
+    <h2 class="section-title">Vérification</span></h2>
+    <br>
+    <div class="media-wrapper">
+    <div class="media-text">
+      <h1>Vérification électronique</h1>
+      <p>
+        Suite à la conception d'une carte électronique, j'ai aussi dû vérifier cette carte,
+        que ce soit sa conformité aux exigences imposées par un cahier des charges, grâce à des outils de mesure ou des observations.
+        J'ai surtout réalisé ce type de vérification lors de mes
+        <a href="Projets.html#Formation"><span class="highlight-word">projets de formation</span></a>.
+        <br><br>
+        J'ai aussi pu vérifier la fiabilité et le bon fonctionnement d'une carte avant sa réalisation, par analyse de <span class="tooltip-word">derating
+        <span class="tip">💡 Le derating fait partie des normes IPC et représente la proportion des conditions maximales d'utilisation en deçà de laquelle un composant subit le minimum de stress possible tout au long de sa vie, et reste donc opérationnel le plus longtemps possible.</span></span>
+        et par simulations sur le logiciel <a href="index.html#Apps"><span class="highlight-word">LTSpice</span></a>.
+      </p>
+    </div>
+      <div class="media-image">
+      <img
+      src="Images/Image verif.jpg"
+      alt="Description de l'image"
+      />
+    </div>
+  </section>
+
+  <section class="section-media">
+    <div class="container">
+
+        <div class="media-image-grid">
+
+        <figure class="media-figure">
+          <img src="Images/Verif_elec.jpg" alt="Verif voltmetre" />
+          <figcaption>Vérification par mesure</figcaption>
+        </figure>
+
+        <figure class="media-figure">
+          <img src="Images/Schéma LTSpice.png" alt="Simulation LTSpice" />
+          <figcaption>Simulation LTSpice</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-media" id="maintenance_prev">
+    <h2 class="section-title">Maintenance</span></h2>
+    <br>
+    <div class="media-wrapper">
+      <div class="media-image">
+      <img
+      src="Images/Maintenance_prev.jpeg"
+      alt="Description de l'image"
+      />
+    </div>
+
+  
+    <div class="media-text">
+      <h1>Maintenance prévisionnelle</h1>
+      <p>
+        La maintenance prévisionnelle permet de voir venir et prévenir un disfonctionnement dans un
+        système électronique.
+        <br><br> 
+        Pour cela, j'ai appris à utiliser des outils tels que la méthode de <span class="tooltip-word">Pareto
+        <span class="tip">💡 La loi de Pareto, aussi connue sous le nom de « loi des 80/20 », désigne une règle statistique selon laquelle 80 % de la valeur globale est produite par 20 % des unités les plus importantes. Ici, 80% des disfonctionnements proviennent de 20% des machines.</span></span>
+        ou tout simplement l'observation visuelle.
+      </p>
+    </div>
+  </section>
+
+  <section class="section-media" id="maintenance_rep">
+    <div class="media-wrapper">
+      <div class="media-image">
+      <img
+      src="Images/Maintenance_rep.jpg"
+      alt="Description de l'image"
+      />
+    </div>
+
+  
+    <div class="media-text">
+      <h1>Maintenance réparatrice</h1>
+      <p>
+        La maintenance réparatrice vient une fois qu'un système électronique est devenu défaillant. Au cours de ma formation, j'ai appris à
+        identifier la présence d'une panne en étudiant le fonctionnement normal d'un système, puis la diagnostiquer et réparer en étudiant le système bloc par
+        bloc et en détaillant le processus de diagnostic et les moyens utilisés.
+      </p>
+    </div>
+  </section>
+
+
+  <section class="section-media" id="Implantation_radio">
+    <h2 class="section-title">Implantation</span></h2>
+    <br>
+    <div class="media-wrapper">
+    <div class="media-text">
+      <h1>Implantation radio</h1>
+      <p>
+        Dans le cadre du <a href="Projets.html#CDR"><span class="highlight-word">concours de radiogoniométrie</span></a>
+        et au cours de ma formation, j'ai pu apprendre à <span class="tooltip-word">adapter l'impédance
+        <span class="tip">💡 En hautes fréquences, le trajet d'un signal entre un émetteur et un récepteur doit être adapté afin que le transfert d'informations soit le plus efficace et le moins perturbé possible.</span></span>
+        d'un circuit électronique.<br>
+        En utilisant une <span class="tooltip-word">abaque de Smith<span class="tip">💡 L'abaque de Smith est un outils permettant de tracer visuellement l'impédance d'un système, à la fois en réel et imaginaire, et donc de pouvoir amener cette impédance à la valeur souhaitée.</span></span>
+        et des condensateur et bobines, j'ai notamment adapté une antenne faite au cours du concours de radiogoniométrie.
+      </p>
+    </div>
+      <div class="media-image">
+      <img
+      src="Images/Antenne equilibre.jpg"
+      alt="Description de l'image"
+      />
+    </div>
+  </section>
+
+
+
+  <!-- ==========================================
+       FOOTER
+  =========================================== -->
+  <footer>
+    <p>⬡ Portfolio · Arthur Blachon · 2026</p>
+    <div class="footer-links">
+      <a href="#">Haut de page ↑</a>
+    </div>
+  </footer>
+
+  <!-- ==========================================
+       JAVASCRIPT — TOUTES LES FONCTIONS
+  =========================================== -->
+  <script>
+
+    /* =============================================
+      1. MODE SOMBRE / LUMINEUX
+    ============================================= */
+    const html = document.documentElement;
+    const themeToggle = document.getElementById('themeToggle');
+    const darkBtn  = document.getElementById('darkBtn');
+    const lightBtn = document.getElementById('lightBtn');
+
+    // Lit le thème sauvegardé, "dark" par défaut si première visite
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    html.setAttribute('data-theme', savedTheme);
+    darkBtn.classList.toggle('active', savedTheme === 'dark');
+    lightBtn.classList.toggle('active', savedTheme === 'light');
+
+    themeToggle.addEventListener('click', () => {
+      const isDark = html.getAttribute('data-theme') === 'dark';
+      const newTheme = isDark ? 'light' : 'dark';
+
+      html.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme); // sauvegarde le choix
+      darkBtn.classList.toggle('active', newTheme === 'dark');
+      lightBtn.classList.toggle('active', newTheme === 'light');
+      showToast(isDark ? '☀️ Mode lumineux activé' : '🌙 Mode sombre activé');
+    });
+
+
+    /* =============================================
+       2. CURSEUR PERSONNALISÉ
+    ============================================= */
+    const cursor = document.getElementById('cursor');
+
+    // Déplace le curseur avec la souris
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top  = e.clientY + 'px';
+    });
+
+    // Agrandi quand on passe sur un lien/bouton
+    document.querySelectorAll('a, button, .accordion-header').forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('big'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('big'));
+    });
+
+
+    /* =============================================
+       3. BARRE DE PROGRESSION AU SCROLL
+    ============================================= */
+    const scrollBar = document.getElementById('scroll-bar');
+
+    window.addEventListener('scroll', () => {
+      // scrollY = position actuelle / scrollHeight - innerHeight = défilement total possible
+      const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+      scrollBar.style.width = pct + '%';
+    });
+
+
+    /* =============================================
+       4. ACCORDÉON
+    ============================================= */
+    function toggleAccordion(id) {
+      const acc = document.getElementById(id);
+      // Si déjà ouvert → fermer, sinon → fermer tous et ouvrir celui-ci
+      const isOpen = acc.classList.contains('open');
+      document.querySelectorAll('.accordion').forEach(a => a.classList.remove('open'));
+      if (!isOpen) acc.classList.add('open');
+    }
+
+
+    /* =============================================
+       5. NOTIFICATIONS TOAST
+    ============================================= */
+    function showToast(message) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      container.appendChild(toast);
+      // Supprime le toast après 3 secondes (la durée de l'animation CSS)
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+
+    /* =============================================
+       6. MACHINE À ÉCRIRE
+    ============================================= */
+    const words = [
+      "Portfolio d'un étudiant",
+      "Portfolio d'un technicien",
+      "Portfolio d'un humain",
+      "Portfolio d'un passionné",
+    ];
+    let wIdx = 0, cIdx = 0, deleting = false;
+    const twEl = document.getElementById('typewriter');
+
+    function typeWriter() {
+      const word = words[wIdx];
+
+      if (!deleting) {
+        // Ajoute une lettre
+        cIdx++;
+        twEl.innerHTML = word.slice(0, cIdx) + '<span class="typewriter-cursor"></span>';
+        if (cIdx === word.length) {
+          deleting = true;
+          setTimeout(typeWriter, 1800); // pause avant de supprimer
+          return;
+        }
+      } else {
+        // Supprime une lettre
+        cIdx--;
+        twEl.innerHTML = word.slice(0, cIdx) + '<span class="typewriter-cursor"></span>';
+        if (cIdx === 15) {
+          deleting = false;
+          wIdx = (wIdx + 1) % words.length; // mot suivant
+        }
+      }
+      setTimeout(typeWriter, deleting ? 60 : 100);
+    }
+    typeWriter();
+
+
+    /* =============================================
+       7. INTERSECTION OBSERVER
+       Déclenche des animations quand les éléments
+       entrent dans la fenêtre visible
+    ============================================= */
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.15 });
+
+    // Observer les cartes de la galerie
+    document.querySelectorAll('.img-card').forEach(card => observer.observe(card));
+
+    // Barres de progression
+    const barObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const fill = entry.target;
+          fill.style.width = fill.dataset.width + '%';
+          barObserver.unobserve(fill);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    document.querySelectorAll('.skill-bar-fill').forEach(bar => barObserver.observe(bar));
+
+    // Compteurs animés
+    const counterObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateCount(entry.target);
+          counterObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    function animateCount(el) {
+      const target = +el.dataset.count;
+      let current = 0;
+      const step = Math.ceil(target / 40);
+      const timer = setInterval(() => {
+        current = Math.min(current + step, target);
+        el.textContent = current;
+        if (current >= target) clearInterval(timer);
+      }, 40);
+    }
+
+    document.querySelectorAll('.stat-number').forEach(el => counterObserver.observe(el));
+
+
+    /* =============================================
+       9. FILTRE GALERIE EN TEMPS RÉEL
+    ============================================= */
+    const searchInput = document.getElementById('gallerySearch');
+
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value.toLowerCase();
+      document.querySelectorAll('.img-card').forEach(card => {
+        const title = card.dataset.title.toLowerCase();
+        // Affiche ou cache la carte selon la recherche
+        card.style.display = title.includes(q) ? '' : 'none';
+      });
+    });
+
+  </script>
+</body>
+</html>
